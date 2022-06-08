@@ -23,20 +23,23 @@
 - name: Create and start postgres container
   docker_container:
     name: postgres
-    image: "postgres"
+    image: postgres
     pull: yes
     env:
       TZ: "{{ tz }}"
       PUID: "{{ uid }}"
       PGID: "{{ gid }}"
       LOG_LEVEL: DEBUG
-      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_USER: "{{ postgres.user }}"
+      POSTGRES_PASSWORD: "{{ postgres.password }}"
     volumes:
       - /opt/postgres/data:/var/lib/postgresql/data
     labels:
       "com.github.cloudbox.cloudbox_managed": "true"
     networks:
       - name: cloudbox
+    published_ports:
+      - "{{ postgres.publish_port_interface|default('127.0.0.1',true) }}:5432:5432"
     purge_networks: yes
     restart_policy: unless-stopped
     state: started
